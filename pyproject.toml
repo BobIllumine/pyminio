@@ -7,9 +7,10 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-]
 
+[tool.poetry.dependencies]
+umini = { git = "https://github.com/BobIllumine/python-mini-utils.git" }
+minio = "^7.2.15"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
