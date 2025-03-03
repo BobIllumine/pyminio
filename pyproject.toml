@@ -8,6 +8,8 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "minio (>=7.2.15,<8.0.0)"
+    
 ]
 
 
