@@ -13,12 +13,14 @@ class Storage():
         self,
         endpoint: str,
         access_key: str,
-        secret_key: str
+        secret_key: str, 
+        region: str = "ru-1"
     ):
         self.endpoint = endpoint
         self.access_key = access_key
         self.secret_key = secret_key
         self._current_bucket = None
+        self.region = region
     
     @property
     def client(self) -> Minio:
@@ -28,7 +30,7 @@ class Storage():
         Returns:
             Minio
         """
-        return Minio(self.endpoint, self.access_key, self.secret_key)
+        return Minio(endpoint=self.endpoint, access_key=self.access_key, secret_key=self.secret_key, secure=False, region=self.region)
     
     @property
     def current_bucket(self) -> Optional[str]:
@@ -153,6 +155,10 @@ class Storage():
             if self.current_bucket is None:
                 raise ValueError(f'Bucket name must be provided or current bucket must be set')
             bucket_name = self.current_bucket
+        objects = list(self.client.list_objects(bucket_name))
+        if len(objects) != 0:
+            for object in objects:
+                self.client.remove_object(bucket_name=bucket_name, object_name=object.object_name)
         return self.client.remove_bucket(bucket_name)
     
     def make_bucket(self, bucket_name: Optional[str] = None) -> None:
@@ -227,6 +233,9 @@ class Storage():
     def __setitem__(self, key: tuple[str, list[str]], file_path: str | io.BytesIO) -> list[ObjectWriteResult]: ...
     @overload
     def __setitem__(self, key: list[tuple[str, str]], file_path: str | io.BytesIO) -> list[ObjectWriteResult]: ...
+    @overload
+    def __setitem__(self, key: list[str], file_path: str | io.BytesIO) -> list[ObjectWriteResult]: ...
+
     
     def __setitem__(
         self, 
