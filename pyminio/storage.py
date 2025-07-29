@@ -30,7 +30,14 @@ class Storage():
         Returns:
             Minio
         """
-        return Minio(endpoint=self.endpoint, access_key=self.access_key, secret_key=self.secret_key, secure=False, region=self.region)
+        return Minio(
+            endpoint=self.endpoint, 
+            access_key=self.access_key, 
+            secret_key=self.secret_key, 
+            secure=False, 
+            region=self.region, 
+            cert_check=False
+        )
     
     @property
     def current_bucket(self) -> Optional[str]:
@@ -81,13 +88,13 @@ class Storage():
             bucket_name = self.current_bucket
         try:
             response = self.client.get_object(bucket_name, object_name)
-            return bytes_to_io(response.data)
-        except Exception as e:
-            raise Exception(f'Failed to get object {object_name} from bucket {bucket_name}: {e}') from e
-        finally:
+            data = bytes_to_io(response.data)
             if response:
                 response.close()
                 response.release_conn()
+            return data
+        except Exception as e:
+            raise Exception(f'Failed to get object {object_name} from bucket {bucket_name}: {e}') from e
     
     def list_objects(self, prefix: str = "", bucket_name: Optional[str] = None) -> list[Object]:
         """
